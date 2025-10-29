@@ -1,0 +1,35 @@
+{
+  "name": "um-gwa-extension",
+  "version": "1.0.0",
+  "description": "A browser extension that automatically calculates your General Weighted Average (GWA) from the University of Mindanao SPR webpage",
+  "main": "background.js",
+  "scripts": {
+    "lint": "eslint *.js",
+    "format": "prettier --write '**/*.{js,json,html,css,md}'",
+    "build": "web-ext build",
+    "start:firefox": "web-ext run",
+    "start:chrome": "web-ext run --target=chromium"
+  },
+  "keywords": [
+    "browser-extension",
+    "gwa-calculator",
+    "university-of-mindanao",
+    "grade-calculator",
+    "student-tools"
+  ],
+  "author": "UM Students",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loftyyyy/UM-GWA-Extension.git"
+  },
+  "bugs": {
+    "url": "https://github.com/loftyyyy/UM-GWA-Extension/issues"
+  },
+  "homepage": "https://github.com/loftyyyy/UM-GWA-Extension#readme",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "web-ext": "^7.0.0"
+  }
+}

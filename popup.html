@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UM GWA Calculator</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>UM GWA Calculator</h1>
+      <p class="subtitle">General Weighted Average</p>
+    </header>
+
+    <main>
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Analyzing SPR page...</p>
+      </div>
+
+      <div id="error" class="error hidden">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="10" stroke-width="2"/>
+          <line x1="12" y1="8" x2="12" y2="12" stroke-width="2"/>
+          <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2"/>
+        </svg>
+        <p id="error-message">Unable to detect SPR page. Please navigate to your SPR webpage first.</p>
+        <button id="retry-btn" class="btn-retry">Retry</button>
+      </div>
+
+      <div id="result" class="result hidden">
+        <div class="gwa-display">
+          <span class="label">Your GWA</span>
+          <span id="gwa-value" class="gwa-value">0.00</span>
+          <span id="gwa-remark" class="gwa-remark"></span>
+        </div>
+
+        <div class="stats">
+          <div class="stat-item">
+            <span class="stat-label">Total Units</span>
+            <span id="total-units" class="stat-value">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Subjects</span>
+            <span id="total-subjects" class="stat-value">0</span>
+          </div>
+        </div>
+
+        <div id="grade-list" class="grade-list">
+          <!-- Grades will be populated here -->
+        </div>
+
+        <button id="refresh-btn" class="btn-refresh">Refresh Calculation</button>
+      </div>
+    </main>
+
+    <footer>
+      <p>Made with ❤️ for UM Students</p>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
