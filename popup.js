@@ -5,6 +5,7 @@ const resultEl = document.getElementById('result');
 const errorMessageEl = document.getElementById('error-message');
 const gwaValueEl = document.getElementById('gwa-value');
 const gwaRemarkEl = document.getElementById('gwa-remark');
+const gwaScaleEl = document.getElementById('gwa-scale');
 const totalUnitsEl = document.getElementById('total-units');
 const totalSubjectsEl = document.getElementById('total-subjects');
 const totalWeightedEl = document.getElementById('total-weighted');
@@ -115,10 +116,12 @@ function calculateGWA(grades) {
   
   const gwa = totalUnits > 0 ? totalWeightedGrade / totalUnits : 0;
   const remark = getGWARemark(gwa);
+  const scale = getGWAScale(gwa);
   
   return {
     gwa: gwa.toFixed(2),
     remark: remark,
+    scale: scale,
     totalUnits: totalUnits,
     totalSubjects: grades.length,
     totalWeighted: totalWeightedGrade.toFixed(2)
@@ -148,6 +151,7 @@ function displayResults(gwaData, grades) {
   // Update GWA display
   gwaValueEl.textContent = gwaData.gwa;
   gwaRemarkEl.textContent = gwaData.remark;
+  if (gwaScaleEl) gwaScaleEl.textContent = `Scale: ${gwaData.scale}`;
   
   // Update stats
   totalUnitsEl.textContent = gwaData.totalUnits;
@@ -182,6 +186,16 @@ function displayResults(gwaData, grades) {
   
   // Show result section
   showResult();
+}
+
+// Map GWA to scale band based on provided table
+function getGWAScale(gwa) {
+  if (gwa >= 4.0) return '96-100';
+  if (gwa >= 3.5) return '90-95';
+  if (gwa >= 3.0) return '85-89';
+  if (gwa >= 2.5) return '80-84';
+  if (gwa >= 2.0) return '75-79';
+  return '<75';
 }
 
 // Filter out PE subjects (PAHF code or PE keywords)
