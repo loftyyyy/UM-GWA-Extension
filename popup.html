@@ -36,6 +36,13 @@
           <span id="gwa-remark" class="gwa-remark"></span>
         </div>
 
+        <div class="options" style="margin: 8px 0 4px 0; display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" id="exclude-pe" />
+          <label for="exclude-pe">Exclude PE subjects (e.g., PAHF)</label>
+          <input type="checkbox" id="exclude-nstp" style="margin-left:10px;" />
+          <label for="exclude-nstp">Exclude NSTP</label>
+        </div>
+
         <div class="stats">
           <div class="stat-item">
             <span class="stat-label">Total Units</span>
@@ -44,6 +51,10 @@
           <div class="stat-item">
             <span class="stat-label">Subjects</span>
             <span id="total-subjects" class="stat-value">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Total Weighted</span>
+            <span id="total-weighted" class="stat-value">0.00</span>
           </div>
         </div>
 

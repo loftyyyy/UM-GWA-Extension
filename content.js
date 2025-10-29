@@ -6,84 +6,99 @@
 // Listen for messages from the popup or background script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'extractGrades') {
-    const gradesData = extractGrades();
+    const excludePE = !!request.excludePE;
+    const excludeNSTP = !!request.excludeNSTP;
+    const gradesData = extractGrades({ excludePE, excludeNSTP });
     sendResponse(gradesData);
+    return true;
   }
-  return true; // Keep the message channel open for async response
+  return false;
 });
 
 /**
  * Extract grades from the current SPR page
  * This function analyzes the page structure and extracts grade information
  */
-function extractGrades() {
-  const grades = [];
+function extractGrades(options = {}) {
+  const { excludePE = false, excludeNSTP = false } = options;
+  const collected = [];
   
-  // Try multiple strategies to find grade information
-  
-  // Strategy 1: Look for tables with grade data
-  const tables = document.querySelectorAll('table');
-  
-  for (const table of tables) {
-    const rows = table.querySelectorAll('tr');
-    
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      const cells = row.querySelectorAll('td, th');
-      
-      if (cells.length >= 3) {
-        // Extract text content from cells
-        const cellTexts = Array.from(cells).map(cell => cell.textContent.trim());
-        
-        // Try to identify subject, grade, and units
-        // This is a generic approach - customize based on actual SPR structure
-        for (let j = 0; j < cellTexts.length - 2; j++) {
-          const possibleSubject = cellTexts[j];
-          const possibleUnits = parseFloat(cellTexts[j + 1]);
-          const possibleGrade = parseFloat(cellTexts[j + 2]);
-          
-          // Validate if this looks like valid grade data
-          if (
-            possibleSubject &&
-            possibleSubject.length > 3 &&
-            !isNaN(possibleUnits) &&
-            !isNaN(possibleGrade) &&
-            possibleUnits > 0 &&
-            possibleUnits <= 10 &&
-            possibleGrade >= 1.0 &&
-            possibleGrade <= 5.0
-          ) {
-            grades.push({
-              subject: possibleSubject,
-              units: possibleUnits,
-              grade: possibleGrade
-            });
-          }
-        }
-      }
-    }
+  const tables = Array.from(document.querySelectorAll('table.table'));
+  const target = tables.find(t => t.querySelector('thead') && t.querySelector('tbody')) || tables[0];
+  if (!target) {
+    return wrapResult([]);
   }
   
-  // Strategy 2: Look for specific class names or IDs (customize as needed)
-  // Example: const gradeRows = document.querySelectorAll('.grade-row');
+  const rows = Array.from(target.querySelectorAll('tbody tr'));
+  for (const row of rows) {
+    if (row.classList.contains('tr-primary-marker')) continue;
+    const tds = row.querySelectorAll('td');
+    if (tds.length < 4) continue;
+    
+    const courseCode = (tds[0].textContent || '').trim();
+    const title = (tds[1].textContent || '').trim();
+    const gradeVal = parseFloat((tds[2].textContent || '').trim());
+    const unitsVal = parseFloat((tds[3].textContent || '').trim());
+    
+    if (!courseCode || !title) continue;
+    if (isNaN(gradeVal) || isNaN(unitsVal)) continue;
+    if (gradeVal < 0 || gradeVal > 5) continue;
+    if (unitsVal <= 0 || unitsVal > 10) continue;
+    
+    collected.push({ subject: courseCode, title, grade: gradeVal, units: unitsVal });
+  }
   
-  // Strategy 3: Look for definition lists or other structures
-  // This can be expanded based on the actual SPR page structure
+  // Filter out in-progress (grade 0.0) and optionally PE subjects
+  let filtered = collected.filter(g => g.grade > 0 && g.units > 0);
+  if (excludePE) {
+    filtered = filterOutPE(filtered);
+  }
+  if (excludeNSTP) {
+    filtered = filterOutNSTP(filtered);
+  }
   
-  // Remove duplicates
-  const uniqueGrades = [];
+  return wrapResult(filtered);
+}
+
+function filterOutPE(grades) {
+  const isPE = (g) => {
+    const code = (g.subject || '').toUpperCase();
+    const title = (g.title || '').toUpperCase();
+    if (code.startsWith('PAHF')) return true;
+    if (/\bPE\b/.test(code)) return true;
+    if (title.includes('PHYSICAL EDUCATION')) return true;
+    if (title.includes('DANCE AND SPORTS')) return true;
+    if (title.includes('EXERCISE-BASED FITNESS')) return true;
+    if (title.includes('MOVEMENT COMPETENCY')) return true;
+    return false;
+  };
+  return grades.filter(g => !isPE(g));
+}
+
+function filterOutNSTP(grades) {
+  const isNSTP = (g) => {
+    const code = (g.subject || '').toUpperCase();
+    const title = (g.title || '').toUpperCase();
+    if (code.startsWith('NSTP')) return true;
+    if (title.includes('NATIONAL SERVICE TRAINING PROGRAM')) return true;
+    return false;
+  };
+  return grades.filter(g => !isNSTP(g));
+}
+
+function wrapResult(grades) {
+  // Deduplicate identical entries
+  const out = [];
   const seen = new Set();
-  
-  for (const grade of grades) {
-    const key = `${grade.subject}-${grade.units}-${grade.grade}`;
+  for (const g of grades) {
+    const key = `${g.subject}|${g.title}|${g.units}|${g.grade}`;
     if (!seen.has(key)) {
       seen.add(key);
-      uniqueGrades.push(grade);
+      out.push(g);
     }
   }
-  
   return {
-    grades: uniqueGrades,
+    grades: out,
     source: 'content-script',
     url: window.location.href,
     timestamp: new Date().toISOString()

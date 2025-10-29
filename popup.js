@@ -7,17 +7,37 @@ const gwaValueEl = document.getElementById('gwa-value');
 const gwaRemarkEl = document.getElementById('gwa-remark');
 const totalUnitsEl = document.getElementById('total-units');
 const totalSubjectsEl = document.getElementById('total-subjects');
+const totalWeightedEl = document.getElementById('total-weighted');
 const gradeListEl = document.getElementById('grade-list');
 const retryBtn = document.getElementById('retry-btn');
 const refreshBtn = document.getElementById('refresh-btn');
+const excludePeCheckbox = document.getElementById('exclude-pe');
+const excludeNstpCheckbox = document.getElementById('exclude-nstp');
 
 // Initialize popup
 document.addEventListener('DOMContentLoaded', () => {
-  loadGrades();
+  // Load saved settings, then calculate
+  chrome.storage.sync.get({ excludePE: false, excludeNSTP: false }, (res) => {
+    excludePeCheckbox.checked = !!res.excludePE;
+    if (excludeNstpCheckbox) excludeNstpCheckbox.checked = !!res.excludeNSTP;
+    loadGrades();
+  });
   
   // Add event listeners
   retryBtn.addEventListener('click', loadGrades);
   refreshBtn.addEventListener('click', loadGrades);
+  excludePeCheckbox.addEventListener('change', () => {
+    chrome.storage.sync.set({ excludePE: excludePeCheckbox.checked }, () => {
+      loadGrades();
+    });
+  });
+  if (excludeNstpCheckbox) {
+    excludeNstpCheckbox.addEventListener('change', () => {
+      chrome.storage.sync.set({ excludeNSTP: excludeNstpCheckbox.checked }, () => {
+        loadGrades();
+      });
+    });
+  }
 });
 
 /**
@@ -39,27 +59,26 @@ async function loadGrades() {
       throw new Error('Please navigate to your UM SPR webpage first.');
     }
     
-    // Execute content script to extract grades
-    const results = await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: extractGradesFromPage,
-    });
-    
-    if (!results || !results[0] || !results[0].result) {
-      throw new Error('Unable to extract grades from the page.');
-    }
-    
-    const gradesData = results[0].result;
+    // Load settings and ask the content script to extract
+    const { excludePE, excludeNSTP } = await chrome.storage.sync.get({ excludePE: false, excludeNSTP: false });
+    const gradesData = await chrome.tabs.sendMessage(tab.id, { action: 'extractGrades', excludePE, excludeNSTP });
     
     if (!gradesData.grades || gradesData.grades.length === 0) {
       throw new Error('No grades found on this page. Make sure you are on your SPR page.');
     }
     
+    // Content script already applies exclude and filters 0.0; keep a safety guard
+    const validGrades = gradesData.grades.filter(g => typeof g.grade === 'number' && g.grade > 0 && g.units > 0);
+    
+    if (validGrades.length === 0) {
+      throw new Error('No completed subjects found to compute GWA.');
+    }
+    
     // Calculate GWA
-    const gwa = calculateGWA(gradesData.grades);
+    const gwa = calculateGWA(validGrades);
     
     // Display results
-    displayResults(gwa, gradesData.grades);
+    displayResults(gwa, validGrades);
     
   } catch (error) {
     showError(error.message);
@@ -70,46 +89,7 @@ async function loadGrades() {
  * Function to extract grades from the SPR page
  * This runs in the context of the webpage
  */
-function extractGradesFromPage() {
-  const grades = [];
-  
-  // This is a placeholder implementation
-  // The actual implementation will depend on the structure of the SPR webpage
-  // Students will need to customize this based on their SPR page structure
-  
-  // Example: Look for table rows with grade information
-  const tables = document.querySelectorAll('table');
-  
-  for (const table of tables) {
-    const rows = table.querySelectorAll('tr');
-    
-    for (const row of rows) {
-      const cells = row.querySelectorAll('td');
-      
-      if (cells.length >= 3) {
-        // Try to extract: subject name, grade, units
-        // This is a generic approach and may need customization
-        const subjectName = cells[0]?.textContent.trim();
-        const gradeText = cells[cells.length - 2]?.textContent.trim();
-        const unitsText = cells[cells.length - 3]?.textContent.trim();
-        
-        const grade = parseFloat(gradeText);
-        const units = parseFloat(unitsText);
-        
-        // Check if we have valid grade and units
-        if (subjectName && !isNaN(grade) && !isNaN(units) && grade > 0 && units > 0 && grade <= 5.0) {
-          grades.push({
-            subject: subjectName,
-            grade: grade,
-            units: units
-          });
-        }
-      }
-    }
-  }
-  
-  return { grades };
-}
+// Extraction is handled by the content script now
 
 /**
  * Calculate GWA from grades
@@ -132,7 +112,8 @@ function calculateGWA(grades) {
     gwa: gwa.toFixed(2),
     remark: remark,
     totalUnits: totalUnits,
-    totalSubjects: grades.length
+    totalSubjects: grades.length,
+    totalWeighted: totalWeightedGrade.toFixed(2)
   };
 }
 
@@ -168,6 +149,7 @@ function displayResults(gwaData, grades) {
   // Update stats
   totalUnitsEl.textContent = gwaData.totalUnits;
   totalSubjectsEl.textContent = gwaData.totalSubjects;
+  if (totalWeightedEl) totalWeightedEl.textContent = gwaData.totalWeighted;
   
   // Clear and populate grade list
   gradeListEl.innerHTML = '';
@@ -178,6 +160,7 @@ function displayResults(gwaData, grades) {
     
     gradeDiv.innerHTML = `
       <span class="subject">${gradeItem.subject}</span>
+      <span class="title" style="opacity:.8;">${gradeItem.title || ''}</span>
       <span class="grade">${gradeItem.grade.toFixed(2)}</span>
       <span class="units">${gradeItem.units} units</span>
     `;
@@ -187,6 +170,22 @@ function displayResults(gwaData, grades) {
   
   // Show result section
   showResult();
+}
+
+// Filter out PE subjects (PAHF code or PE keywords)
+function filterOutPE(grades) {
+  const isPE = (g) => {
+    const code = (g.subject || '').toUpperCase();
+    const title = (g.title || '').toUpperCase();
+    if (code.startsWith('PAHF')) return true;
+    if (/\bPE\b/.test(code)) return true;
+    if (title.includes('PHYSICAL EDUCATION')) return true;
+    if (title.includes('DANCE AND SPORTS')) return true;
+    if (title.includes('EXERCISE-BASED FITNESS')) return true;
+    if (title.includes('MOVEMENT COMPETENCY')) return true;
+    return false;
+  };
+  return grades.filter(g => !isPE(g));
 }
 
 /**

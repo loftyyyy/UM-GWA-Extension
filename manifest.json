@@ -23,7 +23,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*.umindanao.edu.ph/*", "*://umindanao.edu.ph/*"],
+      "matches": ["https://student.umindanao.edu.ph/student/spr"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
