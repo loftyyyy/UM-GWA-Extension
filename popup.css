@@ -321,9 +321,7 @@ footer p {
   border-bottom: 1px solid #f1c40f;
   font-weight: 600;
   font-size: 12px;
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  position: static;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
 }

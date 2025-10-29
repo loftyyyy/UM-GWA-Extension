@@ -131,19 +131,14 @@ function calculateGWA(grades) {
  * @returns {string} - Remark
  */
 function getGWARemark(gwa) {
-  if (gwa >= 1.0 && gwa <= 1.5) {
-    return 'Excellent';
-  } else if (gwa > 1.5 && gwa <= 2.0) {
-    return 'Very Good';
-  } else if (gwa > 2.0 && gwa <= 2.5) {
-    return 'Good';
-  } else if (gwa > 2.5 && gwa <= 3.0) {
-    return 'Satisfactory';
-  } else if (gwa > 3.0 && gwa <= 5.0) {
-    return 'Passing';
-  } else {
-    return 'Failed';
-  }
+  // UM scale uses a 1.0–4.0 range, with higher being better in the given data
+  if (gwa >= 4.0) return 'High Distinction (A)';
+  if (gwa >= 3.5) return 'Distinction (B+)';
+  if (gwa >= 3.0) return 'Very Good (B-)';
+  if (gwa >= 2.5) return 'Good (C+)';
+  if (gwa >= 2.0) return 'Average (C-)';
+  if (gwa >= 1.0) return 'Fail (F)';
+  return 'Fail (F)';
 }
 
 /**

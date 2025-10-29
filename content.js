@@ -42,7 +42,7 @@ function extractGrades(options = {}) {
     
     if (!courseCode || !title) continue;
     if (isNaN(gradeVal) || isNaN(unitsVal)) continue;
-    if (gradeVal < 0 || gradeVal > 5) continue;
+    if (gradeVal < 0 || gradeVal > 4) continue; // UM scale max 4.0
     if (unitsVal <= 0 || unitsVal > 10) continue;
     
     collected.push({ subject: courseCode, title, grade: gradeVal, units: unitsVal });
