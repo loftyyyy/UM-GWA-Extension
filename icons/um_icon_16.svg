@@ -7,7 +7,7 @@
   </defs>
   <circle cx="64" cy="64" r="60" fill="url(#g)" stroke="#f1c40f" stroke-width="6"/>
   <g font-family="Segoe UI, Arial, sans-serif" font-weight="900" text-anchor="middle" dominant-baseline="middle">
-    <text x="64" y="70" font-size="60" fill="#ffffff" stroke="#7a1113" stroke-width="3">U</text>
+    <text x="64" y="72" font-size="58" fill="#ffffff" stroke="#7a1113" stroke-width="3">G</text>
   </g>
 </svg>
 
