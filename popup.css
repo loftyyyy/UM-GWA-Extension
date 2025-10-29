@@ -336,3 +336,27 @@ footer p {
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
 }
+
+/* Equation note */
+.equation-note {
+  background: #fff6d5;
+  border: 1px dashed #f1c40f;
+  color: #7a1113;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.equation-note .eq-title {
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.equation-note .eq-body {
+  font-weight: 600;
+  font-size: 12px;
+}

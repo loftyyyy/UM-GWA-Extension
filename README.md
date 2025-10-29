@@ -23,6 +23,22 @@ Calculate your General Weighted Average (GWA) from the University of Mindanao SP
 4. Click “Load unpacked” and select the folder `UM-GWA-Extension`.
 5. The “UM GWA Calculator” extension should now appear in your extensions list.
 
+### Optional: Update the extension icons to match the theme
+
+This repo includes maroon/gold SVG icon sources in `icons/`:
+
+- `icons/um_icon_16.svg`
+- `icons/um_icon_48.svg`
+- `icons/um_icon_128.svg`
+
+Chrome action icons require PNG. Export each SVG to PNG at sizes 16×16, 48×48, 128×128 and replace the existing files with the exact names used in `manifest.json`:
+
+- `icons/icon16.png`
+- `icons/icon48.png`
+- `icons/icon128.png`
+
+You can export using any vector tool or an online converter. After replacing, reload the extension in `chrome://extensions/`.
+
 ## Usage
 
 1. Navigate to your SPR page: `https://student.umindanao.edu.ph/student/spr`
