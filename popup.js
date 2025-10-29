@@ -161,6 +161,15 @@ function displayResults(gwaData, grades) {
   
   // Clear and populate grade list
   gradeListEl.innerHTML = '';
+  const headerDiv = document.createElement('div');
+  headerDiv.className = 'grade-header';
+  headerDiv.innerHTML = `
+    <span>Subject</span>
+    <span>Title</span>
+    <span>Grade</span>
+    <span>Units</span>
+  `;
+  gradeListEl.appendChild(headerDiv);
   
   grades.forEach(gradeItem => {
     const gradeDiv = document.createElement('div');
