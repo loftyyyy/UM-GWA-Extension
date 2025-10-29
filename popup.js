@@ -68,7 +68,15 @@ async function loadGrades() {
     }
     
     // Content script already applies exclude and filters 0.0; keep a safety guard
-    const validGrades = gradesData.grades.filter(g => typeof g.grade === 'number' && g.grade > 0 && g.units > 0);
+    let validGrades = gradesData.grades.filter(g => typeof g.grade === 'number' && g.grade > 0 && g.units > 0);
+    // Safety: also filter in popup in case content filter missed anything
+    if (excludeNSTP) {
+      validGrades = validGrades.filter(g => {
+        const code = (g.subject || '').toUpperCase();
+        const title = (g.title || '').toUpperCase();
+        return !(code.startsWith('NSTP') || title.includes('NATIONAL SERVICE TRAINING PROGRAM'));
+      });
+    }
     
     if (validGrades.length === 0) {
       throw new Error('No completed subjects found to compute GWA.');

@@ -1,3 +1,70 @@
+# UM GWA Calculator (Chrome Extension)
+
+Calculate your General Weighted Average (GWA) from the University of Mindanao SPR page automatically. Includes options to exclude PE (PAHF) and NSTP subjects from the computation.
+
+## Features
+
+- Extracts grades and units directly from the SPR table
+- Computes weighted GWA = sum(grade × units) / sum(units)
+- Optionally exclude PE subjects (PAHF, PE keywords)
+- Optionally exclude NSTP subjects
+- Shows total units, total subjects, and total weighted grade
+
+## Requirements
+
+- Google Chrome 88+ (Manifest V3)
+- Access to your UM SPR page
+
+## Installation (Developer Mode)
+
+1. Download or clone this repository to your local machine.
+2. Open Chrome and go to `chrome://extensions/`.
+3. Enable “Developer mode” (top right toggle).
+4. Click “Load unpacked” and select the folder `UM-GWA-Extension`.
+5. The “UM GWA Calculator” extension should now appear in your extensions list.
+
+## Usage
+
+1. Navigate to your SPR page: `https://student.umindanao.edu.ph/student/spr`
+2. Click the extension icon (pin it to the toolbar for quick access).
+3. In the popup:
+   - Toggle “Exclude PE subjects (e.g., PAHF)” if you want to remove PE from the calculation.
+   - Toggle “Exclude NSTP” if you want to remove NSTP from the calculation.
+   - Click “Refresh Calculation” to recompute after changing toggles.
+4. The popup shows:
+   - Your GWA
+   - Total Units, Subjects, and Total Weighted (sum of grade × units)
+   - The list of subjects included in the computation
+
+## How It Works
+
+- The content script parses the SPR table rows (skipping semester header rows), reading subject code, title, final grade, and units.
+- The popup requests extracted data from the content script and computes the weighted average.
+- Grades with `0.0` are treated as in progress and excluded automatically.
+- PE and NSTP exclusions are applied in the content script and also validated in the popup for safety.
+
+## Permissions Explained
+
+- `activeTab` and `scripting`: Run extraction on the current SPR tab when you open the popup.
+- `storage`: Save your exclude options (PE, NSTP) so they persist.
+- `host_permissions`: Allow the extension to run on `umindanao.edu.ph` pages.
+
+## Troubleshooting
+
+- Not seeing results? Ensure you are on the exact SPR page and the table is visible.
+- If the popup says it can’t extract grades, reload the SPR page and try again.
+- If PE/NSTP isn’t excluded as expected, toggle the setting off and on, click “Refresh Calculation,” and ensure the subject codes/titles on the site match common patterns (e.g., `PAHF`, `NSTP`). Share any different naming you see to improve matching.
+
+## Development Notes
+
+- Manifest V3 is used. Background service worker is `background.js`.
+- Content script: `content.js` handles extraction and filtering.
+- Popup UI and logic: `popup.html`, `popup.css`, `popup.js`.
+
+## License
+
+MIT
+
 # UM GWA Extension
 
 A browser extension that automatically calculates your General Weighted Average (GWA) from the University of Mindanao's Student Performance Record (SPR) webpage.
