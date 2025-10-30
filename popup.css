@@ -345,9 +345,10 @@ footer p {
   border-radius: 8px;
   padding: 10px 12px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-bottom: 14px;
+  text-align: center;
 }
 
 .equation-note .eq-title {
