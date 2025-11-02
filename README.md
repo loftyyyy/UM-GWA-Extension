@@ -7,6 +7,8 @@ Quick start (Developer mode)
 2. Open Chrome and go to chrome://extensions/.
 3. Enable Developer mode → Load unpacked → select the extension folder.
 
+https://github.com/user-attachments/assets/390ca4c5-019f-4532-9ddd-130a9bf89274
+
 Usage
 1. Open: https://student.umindanao.edu.ph/student/spr
 2. Click the extension icon.
