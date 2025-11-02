@@ -9,9 +9,13 @@ Quick start (Developer mode)
 
 https://github.com/user-attachments/assets/390ca4c5-019f-4532-9ddd-130a9bf89274
 
+
+
 Usage
 1. Open: https://student.umindanao.edu.ph/student/spr
 2. Click the extension icon.
 3. Toggle exclusions (PE, NSTP) if needed and click "Refresh Calculation".
 4. The popup shows GWA, total units, and included subjects.
+
+https://github.com/user-attachments/assets/ec881381-1ca2-4d59-8a38-01ca7869abc4
 
