@@ -15,17 +15,3 @@ Usage
 3. Toggle exclusions (PE, NSTP) if needed and click "Refresh Calculation".
 4. The popup shows GWA, total units, and included subjects.
 
-Files of interest
-- manifest.json
-- popup.html / popup.js / popup.css
-- content.js
-- background.js
-- icons/
-
-Permissions
-- activeTab, scripting, storage, host permissions for umindanao.edu.ph
-
-License
-MIT
-
-Report bugs or request features: open an issue on this repository.
